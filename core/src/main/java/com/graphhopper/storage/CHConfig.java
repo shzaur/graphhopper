@@ -17,6 +17,9 @@ public class CHConfig {
     private final String chGraphName;
     private final Weighting weighting;
     private final boolean edgeBased;
+    private int levels = 3; // 0: Local, 1: Regional, 2: Global
+    private int globalBackboneThreshold = 100000; // Minimum nodes to form global backbone
+    private boolean enableLevelAwareLoading = true;
 
     public static CHConfig nodeBased(String chGraphName, Weighting weighting) {
         return new CHConfig(chGraphName, weighting, false);
@@ -47,6 +50,42 @@ public class CHConfig {
 
     public String toFileName() {
         return chGraphName;
+    }
+
+    public int getLevels() {
+        return levels;
+    }
+
+    public CHConfig setLevels(int levels) {
+        if (levels < 1) throw new IllegalArgumentException("Levels must be >= 1");
+        this.levels = levels;
+        return this;
+    }
+
+    /**
+     * Minimum number of nodes remaining when forming global backbone.
+     * Once contraction reduces nodes below this, contraction stops and global level is finalized.
+     */
+    public int getGlobalBackboneThreshold() {
+        return globalBackboneThreshold;
+    }
+
+    public CHConfig setGlobalBackboneThreshold(int threshold) {
+        if (threshold < 1000) throw new IllegalArgumentException("Threshold must be >= 1000");
+        this.globalBackboneThreshold = threshold;
+        return this;
+    }
+
+    /**
+     * Enable/disable level-aware storage loading (mmap with intelligent paging).
+     */
+    public boolean isLevelAwareLoadingEnabled() {
+        return enableLevelAwareLoading;
+    }
+
+    public CHConfig setLevelAwareLoadingEnabled(boolean enabled) {
+        this.enableLevelAwareLoading = enabled;
+        return this;
     }
 
     public String toString() {
